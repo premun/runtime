@@ -156,7 +156,7 @@ internal class Xcode
     }
 
     public string BuildAppBundle(
-        string xcodePrjPath, string architecture, string bundleIdentifier, string devTeamProvisioning, bool skipSigning, bool optimized)
+        string xcodePrjPath, string binDir, string architecture, string bundleIdentifier, string devTeamProvisioning, bool skipSigning, bool optimized)
     {
         string sdk;
         var args = new StringBuilder();
@@ -164,6 +164,12 @@ internal class Xcode
 
         if (architecture == "arm64")
         {
+            string entitlementsPath = Path.Combine(binDir, "Entitlements.plist");
+            string entitlements = Utils.GetEmbeddedResource("Entitlements.plist.template")
+                .Replace("%BundleIdentifier%", bundleIdentifier)
+                .Replace("%TeamIdentifier%", devTeamProvisioning);
+            File.WriteAllText(entitlementsPath, entitlements);
+
             sdk = (Target == Utils.TargetOS.iOS) ? "iphoneos" : "appletvos";
             args.Append(" -arch arm64")
                 .Append(" -sdk " + sdk);
@@ -173,7 +179,8 @@ internal class Xcode
                 Utils.LogInfo("Skipping signing of the app bundle");
                 args.Append(" CODE_SIGN_IDENTITY=\"\"")
                     .Append(" CODE_SIGNING_REQUIRED=NO")
-                    .Append(" CODE_SIGNING_ALLOWED=NO");
+                    .Append(" CODE_SIGNING_ALLOWED=NO")
+                    .Append($" CODE_SIGN_ENTITLEMENTS=\"{entitlementsPath}\"");
             }
             else
             {
@@ -191,18 +198,12 @@ internal class Xcode
         string config = optimized ? "Release" : "Debug";
         args.Append(" -configuration ").Append(config);
 
-        string projectDir = Path.GetDirectoryName(xcodePrjPath)!;
+        var projectDir = Path.GetDirectoryName(xcodePrjPath)!;
 
         Utils.RunProcess("xcodebuild", args.ToString(), workingDir: projectDir);
 
         string appPath = Path.Combine(projectDir, config + "-" + sdk,
             Path.GetFileNameWithoutExtension(xcodePrjPath) + ".app");
-
-        string entitlementsPath = Path.Combine(appPath, "Entitlements.plist");
-        string entitlements = Utils.GetEmbeddedResource("Entitlements.plist.template")
-            .Replace("%BundleIdentifier%", bundleIdentifier)
-            .Replace("%TeamIdentifier%", devTeamProvisioning);
-        File.WriteAllText(entitlementsPath, entitlements);
 
         long appSize = new DirectoryInfo(appPath)
             .EnumerateFiles("*", SearchOption.AllDirectories)
