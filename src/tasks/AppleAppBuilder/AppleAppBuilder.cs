@@ -3,9 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -22,25 +20,25 @@ public class AppleAppBuilderTask : Task
     /// ProjectName is used as an app name, bundleId and xcode project name
     /// </summary>
     [Required]
-    public string ProjectName { get; set; } = ""!;
+    public string ProjectName { get; set; } = string.Empty;
 
     /// <summary>
     /// Target directory with *dll and other content to be AOT'd and/or bundled
     /// </summary>
     [Required]
-    public string AppDir { get; set; } = ""!;
+    public string AppDir { get; set; } = string.Empty;
 
     /// <summary>
     /// Path to Mono public headers (*.h)
     /// </summary>
     [Required]
-    public string MonoRuntimeHeaders { get; set; } = ""!;
+    public string MonoRuntimeHeaders { get; set; } = string.Empty;
 
     /// <summary>
     /// This library will be used as an entry-point (e.g. TestRunner.dll)
     /// </summary>
     [Required]
-    public string MainLibraryFileName { get; set; } = ""!;
+    public string MainLibraryFileName { get; set; } = string.Empty;
 
     /// <summary>
     /// List of paths to assemblies to be included in the app. For AOT builds the 'ObjectFile' metadata key needs to point to the object file.
@@ -62,12 +60,12 @@ public class AppleAppBuilderTask : Task
     /// Target arch, can be "arm64" (device) or "x64" (simulator) at the moment
     /// </summary>
     [Required]
-    public string Arch { get; set; } = ""!;
+    public string Arch { get; set; } = string.Empty;
 
     /// <summary>
     /// DEVELOPER_TEAM provisioning, needed for arm64 builds.
     /// </summary>
-    public string? DevTeamProvisioning { get; set; }
+    public string DevTeamProvisioning { get; set; } = string.Empty;
 
     /// <summary>
     /// Build *.app bundle (using XCode for now)
@@ -100,7 +98,7 @@ public class AppleAppBuilderTask : Task
     /// Path to *.app bundle
     /// </summary>
     [Output]
-    public string AppBundlePath { get; set; } = ""!;
+    public string AppBundlePath { get; set; } = string.Empty;
 
     /// <summary>
     /// Prefer FullAOT mode for Simulator over JIT
@@ -113,10 +111,15 @@ public class AppleAppBuilderTask : Task
     public bool ForceInterpreter { get; set; }
 
     /// <summary>
+    /// Skips signing so that app can be signed later in Helix
+    /// </summary>
+    public bool SkipSigning { get; set; }
+
+    /// <summary>
     /// Path to xcode project
     /// </summary>
     [Output]
-    public string XcodeProjectPath { get; set; } = ""!;
+    public string XcodeProjectPath { get; set; } = string.Empty;
 
     public override bool Execute()
     {
@@ -185,7 +188,7 @@ public class AppleAppBuilderTask : Task
                 }
                 else
                 {
-                    AppBundlePath = generator.BuildAppBundle(XcodeProjectPath, binDir, Arch, ProjectName, Optimized, DevTeamProvisioning);
+                    AppBundlePath = generator.BuildAppBundle(XcodeProjectPath, binDir, Arch, ProjectName, SkipSigning, Optimized, DevTeamProvisioning);
                 }
             }
         }

@@ -74,6 +74,7 @@
         Optimized="$(Optimized)"
         ForceAOT="$(ForceAOT)"
         ForceInterpreter="$(MonoForceInterpreter)"
+        SkipSigning="True"
         AppDir="$(MSBuildThisFileDirectory)$(PublishDir)">
         <Output TaskParameter="AppBundlePath" PropertyName="AppBundlePath" />
         <Output TaskParameter="XcodeProjectPath" PropertyName="XcodeProjectPath" />

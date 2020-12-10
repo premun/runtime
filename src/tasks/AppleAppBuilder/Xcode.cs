@@ -156,7 +156,7 @@ internal class Xcode
     }
 
     public string BuildAppBundle(
-        string xcodePrjPath, string binDir, string architecture, string bundleIdentifier, bool optimized, string? devTeamProvisioning = null)
+        string xcodePrjPath, string binDir, string architecture, string bundleIdentifier, bool skipSigning, bool optimized, string devTeamProvisioning)
     {
         string sdk = "";
         var args = new StringBuilder();
@@ -168,24 +168,25 @@ internal class Xcode
             args.Append(" -arch arm64")
                 .Append(" -sdk " + sdk);
 
-            if (devTeamProvisioning == "-")
+            if (skipSigning)
             {
+                Utils.LogInfo("Skipping signing of the app bundle");
                 args.Append(" CODE_SIGN_IDENTITY=\"\"")
                     .Append(" CODE_SIGNING_REQUIRED=NO")
                     .Append(" CODE_SIGNING_ALLOWED=NO");
-
-                string fileName = Path.Combine(binDir, "Entitlements.plist");
-                string entitlements = Utils.GetEmbeddedResource("Entitlements.plist.template")
-                    .Replace("%BundleIdentifier%", bundleIdentifier);
-                File.WriteAllText(fileName, entitlements);
-
-                args.Append($" CODE_SIGN_ENTITLEMENTS = \"{fileName}\"");
             }
             else
             {
                 args.Append(" -allowProvisioningUpdates")
                     .Append(" DEVELOPMENT_TEAM=").Append(devTeamProvisioning);
             }
+
+            string fileName = Path.Combine(binDir, "Entitlements.plist");
+            string entitlements = Utils.GetEmbeddedResource("Entitlements.plist.template")
+                .Replace("%BundleIdentifier%", bundleIdentifier)
+                .Replace("%TeamIdentifier%", bundleIdentifier);
+
+            File.WriteAllText(fileName, entitlements);
         }
         else
         {
