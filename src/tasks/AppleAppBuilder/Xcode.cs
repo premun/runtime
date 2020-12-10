@@ -156,9 +156,9 @@ internal class Xcode
     }
 
     public string BuildAppBundle(
-        string xcodePrjPath, string binDir, string architecture, string bundleIdentifier, string devTeamProvisioning, bool skipSigning, bool optimized)
+        string xcodePrjPath, string architecture, string bundleIdentifier, string devTeamProvisioning, bool skipSigning, bool optimized)
     {
-        string sdk = "";
+        string sdk;
         var args = new StringBuilder();
         args.Append("ONLY_ACTIVE_ARCH=YES");
 
@@ -180,13 +180,6 @@ internal class Xcode
                 args.Append(" -allowProvisioningUpdates")
                     .Append(" DEVELOPMENT_TEAM=").Append(devTeamProvisioning);
             }
-
-            string fileName = Path.Combine(binDir, "Entitlements.plist");
-            string entitlements = Utils.GetEmbeddedResource("Entitlements.plist.template")
-                .Replace("%BundleIdentifier%", bundleIdentifier)
-                .Replace("%TeamIdentifier%", devTeamProvisioning);
-
-            File.WriteAllText(fileName, entitlements);
         }
         else
         {
@@ -198,10 +191,18 @@ internal class Xcode
         string config = optimized ? "Release" : "Debug";
         args.Append(" -configuration ").Append(config);
 
-        Utils.RunProcess("xcodebuild", args.ToString(), workingDir: Path.GetDirectoryName(xcodePrjPath));
+        string projectDir = Path.GetDirectoryName(xcodePrjPath)!;
 
-        string appPath = Path.Combine(Path.GetDirectoryName(xcodePrjPath)!, config + "-" + sdk,
+        Utils.RunProcess("xcodebuild", args.ToString(), workingDir: projectDir);
+
+        string appPath = Path.Combine(projectDir, config + "-" + sdk,
             Path.GetFileNameWithoutExtension(xcodePrjPath) + ".app");
+
+        string entitlementsPath = Path.Combine(appPath, "Entitlements.plist");
+        string entitlements = Utils.GetEmbeddedResource("Entitlements.plist.template")
+            .Replace("%BundleIdentifier%", bundleIdentifier)
+            .Replace("%TeamIdentifier%", devTeamProvisioning);
+        File.WriteAllText(entitlementsPath, entitlements);
 
         long appSize = new DirectoryInfo(appPath)
             .EnumerateFiles("*", SearchOption.AllDirectories)
