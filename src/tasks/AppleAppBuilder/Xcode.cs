@@ -179,7 +179,7 @@ internal class Xcode
                     .Replace("%BundleIdentifier%", bundleIdentifier);
                 File.WriteAllText(fileName, entitlements);
 
-                args.Append(" CODE_SIGN_ENTITLEMENTS = Entitlements.plist");
+                args.Append($" CODE_SIGN_ENTITLEMENTS = \"{fileName}\"");
             }
             else
             {

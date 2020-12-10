@@ -3,6 +3,6 @@
 <plist version="1.0">
 <dict>
     <key>application-identifier</key>
-    <string>dot.net.%BundleIdentifier%</string>
+    <string>net.dot.%BundleIdentifier%</string>
 </dict>
 </plist>
