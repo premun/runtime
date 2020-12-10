@@ -156,7 +156,7 @@ internal class Xcode
     }
 
     public string BuildAppBundle(
-        string xcodePrjPath, string architecture, bool optimized, string? devTeamProvisioning = null)
+        string xcodePrjPath, string binDir, string architecture, string bundleIdentifier, bool optimized, string? devTeamProvisioning = null)
     {
         string sdk = "";
         var args = new StringBuilder();
@@ -173,6 +173,13 @@ internal class Xcode
                 args.Append(" CODE_SIGN_IDENTITY=\"\"")
                     .Append(" CODE_SIGNING_REQUIRED=NO")
                     .Append(" CODE_SIGNING_ALLOWED=NO");
+
+                string fileName = Path.Combine(binDir, "Entitlements.plist");
+                string entitlements = Utils.GetEmbeddedResource("Entitlements.plist.template")
+                    .Replace("%BundleIdentifier%", bundleIdentifier);
+                File.WriteAllText(fileName, entitlements);
+
+                args.Append(" CODE_SIGN_ENTITLEMENTS = Entitlements.plist");
             }
             else
             {

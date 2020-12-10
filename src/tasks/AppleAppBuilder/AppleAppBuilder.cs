@@ -185,7 +185,7 @@ public class AppleAppBuilderTask : Task
                 }
                 else
                 {
-                    AppBundlePath = generator.BuildAppBundle(XcodeProjectPath, Arch, Optimized, DevTeamProvisioning);
+                    AppBundlePath = generator.BuildAppBundle(XcodeProjectPath, binDir, Arch, ProjectName, Optimized, DevTeamProvisioning);
                 }
             }
         }
