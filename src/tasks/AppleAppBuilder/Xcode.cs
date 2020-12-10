@@ -156,7 +156,7 @@ internal class Xcode
     }
 
     public string BuildAppBundle(
-        string xcodePrjPath, string binDir, string architecture, string bundleIdentifier, bool skipSigning, bool optimized, string devTeamProvisioning)
+        string xcodePrjPath, string binDir, string architecture, string bundleIdentifier, string devTeamProvisioning, bool skipSigning, bool optimized)
     {
         string sdk = "";
         var args = new StringBuilder();
@@ -184,7 +184,7 @@ internal class Xcode
             string fileName = Path.Combine(binDir, "Entitlements.plist");
             string entitlements = Utils.GetEmbeddedResource("Entitlements.plist.template")
                 .Replace("%BundleIdentifier%", bundleIdentifier)
-                .Replace("%TeamIdentifier%", bundleIdentifier);
+                .Replace("%TeamIdentifier%", devTeamProvisioning);
 
             File.WriteAllText(fileName, entitlements);
         }

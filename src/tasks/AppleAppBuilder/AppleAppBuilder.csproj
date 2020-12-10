@@ -11,6 +11,9 @@
     <EmbeddedResource Include="Templates\*.*" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Templates\Entitlements.plist.template" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.Build" Version="$(RefOnlyMicrosoftBuildVersion)" />
     <PackageReference Include="Microsoft.Build.Framework" Version="$(RefOnlyMicrosoftBuildFrameworkVersion)" />
     <PackageReference Include="Microsoft.Build.Tasks.Core" Version="$(RefOnlyMicrosoftBuildTasksCoreVersion)" />
