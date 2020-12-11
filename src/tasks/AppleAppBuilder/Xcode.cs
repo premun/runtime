@@ -198,11 +198,16 @@ internal class Xcode
             .EnumerateFiles("*", SearchOption.AllDirectories)
             .Sum(file => file.Length);
 
-        string entitlementsPath = Path.Combine(appPath, "Entitlements.plist");
-        string entitlements = Utils.GetEmbeddedResource("Entitlements.plist.template")
-            .Replace("%BundleIdentifier%", bundleIdentifier)
-            .Replace("%TeamIdentifier%", devTeamProvisioning);
-        File.WriteAllText(entitlementsPath, entitlements);
+        // For CI runs on devices, we want to include Entitlements file with the bundle
+        // so that later, when the app is being signed, we have it available
+        if (architecture == "arm64" && skipSigning) {
+            string entitlementsPath = Path.Combine(appPath, "Entitlements.plist");
+            string entitlements = Utils.GetEmbeddedResource("Entitlements.plist.template")
+                .Replace("%BundleIdentifier%", bundleIdentifier)
+                .Replace("%TeamIdentifier%", devTeamProvisioning);
+
+            File.WriteAllText(entitlementsPath, entitlements);
+        }
 
         Utils.LogInfo($"\nAPP size: {(appSize / 1000_000.0):0.#} Mb.\n");
 

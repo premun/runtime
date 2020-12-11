@@ -163,7 +163,7 @@ public class AppleAppBuilderTask : Task
             }
         }
 
-        if (((!ForceInterpreter && (isDevice || ForceAOT)) && !assemblerFiles.Any()))
+        if (!ForceInterpreter && (isDevice || ForceAOT) && !assemblerFiles.Any())
         {
             throw new InvalidOperationException("Need list of AOT files for device builds.");
         }
