@@ -49,15 +49,15 @@ public class PlatformMatrix : JobTemplateDefinition
 
     private static readonly List<Platform> _platforms = new()
     {
-        new("Linux_arm", "Linux", "arm", "linux-arm", "Linux_arm",
+        new("Linux_arm", "Linux", "arm", "linux-arm",
             Container: "ubuntu-16.04-cross-20210719121212-8a8d3be",
             CrossBuild: true,
             CrossRootFsDir: "/crossrootfs/arm"),
 
-        new("Linux_arm", "Linux", "arm", "linux-arm", "Linux_arm",
-            Container: "ubuntu-16.04-cross-20210719121212-8a8d3be",
+        new("Linux_arm", "Linux", "arm64", "linux-arm64",
+            Container: "ubuntu-16.04-cross-arm64-20210719121212-8a8d3be",
             CrossBuild: true,
-            CrossRootFsDir: "/crossrootfs/arm"),
+            CrossRootFsDir: "/crossrootfs/arm64"),
     };
 
     public override ConditionedList<JobBase> Definition
@@ -85,7 +85,7 @@ public class PlatformMatrix : JobTemplateDefinition
             { "osGroup", platform.OsGroup },
             { "archType", platform.Architecture },
             { "targetRid", platform.TargetRid },
-            { "platform", platform.PlatformId },
+            { "platform", platform.PlatformId ?? platform.OsGroup + "_" + platform.Architecture },
         };
 
         if (platform.OsSubGroup != null)
@@ -146,7 +146,7 @@ public record Platform(
     string OsGroup,
     string Architecture,
     string TargetRid,
-    string PlatformId,
+    string? PlatformId = null,
     string? OsSubGroup = null,
     string? Container = null,
     string? RuntimeFlavor = null,
