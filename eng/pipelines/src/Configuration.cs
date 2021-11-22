@@ -5,5 +5,5 @@ namespace Pipelines;
 
 internal static class Configuration
 {
-    public const string PipelinesPath = "src/eng/pipelines/";
+    public const string PipelinesPath = "eng/pipelines/";
 }
