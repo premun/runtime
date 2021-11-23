@@ -23,9 +23,15 @@ public partial class PlatformMatrix : JobTemplateDefinition
         new("Linux_x64", "Linux", "x64", "linux-x64",
             Container:
                 If.Equal(parameters["container"], "''")
-                    .Value("ubuntu-16.04-cross-arm64-20210719121212-8a8d3be")
+                    .Value(new TemplateParameters
+                    {
+                        { "image", "ubuntu-16.04-cross-arm64-20210719121212-8a8d3be" }
+                    })
                 .Else
-                    .Value(parameters["container"]),
+                    .Value(new TemplateParameters
+                    {
+                        { "image", "${{ parameters.container }}" }
+                    }),
             CrossBuild: true),
     };
 }

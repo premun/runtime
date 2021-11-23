@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Sharpliner.AzureDevOps;
-using Sharpliner.AzureDevOps.ConditionedExpressions;
 
 namespace Pipelines;
 
@@ -13,7 +12,7 @@ public record Platform(
     string TargetRid,
     string? PlatformId = null,
     string? OsSubGroup = null,
-    Conditioned<string>? Container = null,
+    object? Container = null,
     string? RuntimeFlavor = null,
     bool CrossBuild = false,
     string? CrossRootFsDir = null,

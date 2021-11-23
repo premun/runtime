@@ -98,10 +98,12 @@ public partial class PlatformMatrix : JobTemplateDefinition
             { "stagedBuild", parameters["stagedBuild"] },
             { "buildConfig", parameters["buildConfig"] },
             { "helixQueueGroup", parameters["helixQueueGroup"] },
-            { If.Equal("parameters.passPlatforms", "true"), new TemplateParameters
-            {
-                { "platforms", parameters["platforms"] },
-            }},
+            { If.Equal("parameters.passPlatforms", "true"),
+                new TemplateParameters
+                {
+                    { "platforms", parameters["platforms"] },
+                }
+            },
         };
 
         if (platform.CrossBuild)
