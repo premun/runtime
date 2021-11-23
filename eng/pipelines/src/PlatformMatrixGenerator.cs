@@ -135,6 +135,13 @@ public partial class PlatformMatrix : JobTemplateDefinition
 
         templateParameters["jobParameters"] = jobParameters;
 
+        if (platform.RunForPlatforms != null)
+        {
+            var quoted = platform.RunForPlatforms.Select(x => $"'{x}'").ToArray();
+            return If.Or(ContainsValue($"'{platform.Name}'", "parameters.platforms"), In("parameters.platformGroup", quoted))
+                    .JobTemplate("xplat-setup.yml", templateParameters);
+        }
+
         return If.ContainsValue($"'{platform.Name}'", "parameters.platforms")
                  .JobTemplate("xplat-setup.yml", templateParameters);
     }
