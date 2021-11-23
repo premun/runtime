@@ -38,16 +38,17 @@ public partial class PlatformMatrix : JobTemplateDefinition
 
         new("Linux_x64", "Linux", "x64", "linux-x64",
             Container:
-                If.Equal("parameters.container", "''")
-                    .Value(new TemplateParameters
+                new TemplateParameters
+                {
+                    { If.Equal("parameters.container", "''"), new TemplateParameters
                     {
                         { "image", "centos-7-20210714125435-9b5bbc2" }
-                    })
-                .Else
-                    .Value(new TemplateParameters
+                    }},
+                    { If.NotEqual("parameters.container", "''"), new TemplateParameters
                     {
                         { "image", parameters["container"] }
-                    })),
+                    }}
+                }),
 
         new("Linux_x86", "Linux", "x86", "linux-x86",
             Container: "ubuntu-18.04-cross-x86-linux-20211022152824-f853169",

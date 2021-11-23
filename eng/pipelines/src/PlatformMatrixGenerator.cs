@@ -85,11 +85,18 @@ public partial class PlatformMatrix : JobTemplateDefinition
 
         if (platform.Container != null)
         {
-            templateParameters["container"] = new TemplateParameters
+            if (platform.Container is string name)
             {
-                { "image", platform.Container },
-                { "registry", "mcr" },
-            };
+                templateParameters["container"] = new TemplateParameters
+                {
+                    { "image", name },
+                    { "registry", "mcr" },
+                };
+            }
+            else
+            {
+                templateParameters["container"] = platform.Container;
+            }
         }
 
         var jobParameters = new TemplateParameters
