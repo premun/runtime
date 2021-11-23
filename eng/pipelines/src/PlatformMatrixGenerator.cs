@@ -75,12 +75,12 @@ public partial class PlatformMatrix : JobTemplateDefinition
             { "osGroup", platform.OsGroup },
             { "archType", platform.Architecture },
             { "targetRid", platform.TargetRid },
-            { "platform", platform.PlatformId ?? platform.OsGroup + "_" + platform.Architecture },
+            { "platform", platform.PlatformId ?? platform.OsGroup + platform.OsSubGroup + "_" + platform.Architecture },
         };
 
         if (platform.OsSubGroup != null)
         {
-            templateParameters["osSubGroup"] = platform.OsSubGroup;
+            templateParameters["osSubgroup"] = platform.OsSubGroup;
         }
 
         if (platform.Container != null)
