@@ -83,6 +83,11 @@ public partial class PlatformMatrix : JobTemplateDefinition
             templateParameters["osSubgroup"] = platform.OsSubGroup;
         }
 
+        if (platform.HostedOs != null)
+        {
+            templateParameters["hostedOs"] = platform.HostedOs;
+        }
+
         if (platform.Container != null)
         {
             if (platform.Container is string name)

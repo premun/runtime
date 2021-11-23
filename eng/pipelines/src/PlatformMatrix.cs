@@ -79,10 +79,12 @@ public partial class PlatformMatrix : JobTemplateDefinition
             CrossRootFsDir: "/crossrootfs/s390x"),
 
         new("Browser_wasm", "Browser", "wasm",
-            Container: "ubuntu-18.04-webassembly-20210531091624-f5c7a43"),
+            Container: "ubuntu-18.04-webassembly-20210531091624-f5c7a43",
+            HostedOs: "Linux"),
 
         new("Browser_wasm_win", "Browser", "wasm",
-            PlatformId: "Browser_wasm_win"),
+            PlatformId: "Browser_wasm_win",
+            HostedOs: "windows"),
 
         new("FreeBSD_x64", "FreeBSD", "x64",
             Container: "ubuntu-18.04-cross-freebsd-12-20210917001307-f13d79e",
