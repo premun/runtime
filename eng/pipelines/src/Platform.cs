@@ -9,7 +9,7 @@ public record Platform(
     string Name,
     string OsGroup,
     string Architecture,
-    string TargetRid,
+    string? TargetRid = null,
     string? PlatformId = null,
     string? OsSubGroup = null,
     object? Container = null,
