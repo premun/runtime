@@ -8,6 +8,20 @@ namespace Pipelines;
 
 public partial class PlatformMatrix : JobTemplateDefinition
 {
+    // These fields can be used to restrict which build legs run in your PR.
+    //
+    // Set this to only dis/allow platforms that contain given substrings.
+    // E.g. add "linux" if you only want to filter platforms containing "linux" in their name.
+    // Then "dotnet build" this project and commit the YAML.
+    //
+    // First allowed platforms are filtered, then disallowed filter is applied.
+    //
+    // Example "Run all linux non-arm legs":
+    //   - allowed  = [ "linux" ]
+    //   - disallowed = [ "arm" ]
+    private readonly List<string> _allowedPlatforms = new() { "linux" };
+    private readonly List<string> _disallowedPlatforms = new() { "arm" };
+
     private List<Platform> Platforms => new()
     {
         new("Linux_arm", "Linux", "arm",
@@ -87,9 +101,7 @@ public partial class PlatformMatrix : JobTemplateDefinition
             HostedOs: "windows"),
 
         new("FreeBSD_x64", "FreeBSD", "x64",
-            Container: "ubuntu-18.04-cross-freebsd-12-20210917001307-f13d79e",
-            CrossBuild: true,
-            CrossRootFsDir: "/crossrootfs/x64"),
+            Container: "ubuntu-18.04-cross-freebsd-12-20210917001307-f13d79e"),
 
         new("Android_x64", "Android", "x64",
             Container: "ubuntu-18.04-android-20200422191843-e2c3f83",

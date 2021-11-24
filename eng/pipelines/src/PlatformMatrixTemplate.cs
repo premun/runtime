@@ -11,6 +11,13 @@ namespace Pipelines;
 
 public partial class PlatformMatrix : JobTemplateDefinition
 {
+    public override string[]? Header => base.Header!.Concat(new[]
+    {
+        string.Empty,
+        "You can also change PlatformMatrix.cs to filter which platforms you care about in your PR",
+        "You can then filter these out temporarily",
+    }).ToArray();
+
     public override TargetPathType TargetPathType => TargetPathType.RelativeToGitRoot;
 
     public override string TargetFile => Configuration.PipelinesPath + "common/platform-matrix.yml";
@@ -25,7 +32,7 @@ public partial class PlatformMatrix : JobTemplateDefinition
         // platformGroup is a named collection of platforms.
         StringParameter("platformGroup", string.Empty, new[]
         {
-            "all", // all platforms
+            "all",     // all platforms
             "gcstress" // platforms that support running under GCStress0x3 and GCStress0xC scenarios
         }),
 
@@ -56,13 +63,44 @@ public partial class PlatformMatrix : JobTemplateDefinition
         {
             var list = new ConditionedList<JobBase>();
 
-            foreach (Conditioned<JobBase> job in Platforms.Select(CreateTemplate))
+            foreach (Conditioned<JobBase> job in Platforms.Where(IsAllowed).Select(CreateTemplate))
             {
                 list.Add(job);
             }
 
             return list;
         }
+    }
+
+    private bool IsAllowed(Platform platform)
+    {
+        static bool ListContains(IEnumerable<string> strings, string? substring)
+        {
+            if (substring is null)
+            {
+                return false;
+            }
+
+            substring = substring.ToLowerInvariant();
+            return strings.Any(s => s.ToLowerInvariant().Contains(substring));
+        }
+
+        bool isAllowed = true;
+
+        if (_allowedPlatforms.Count > 0
+            && !ListContains(_allowedPlatforms, platform.Name)
+            && !ListContains(_allowedPlatforms, platform.TargetRid))
+        {
+            isAllowed = false;
+        }
+
+        if (ListContains(_disallowedPlatforms, platform.Name)
+            || ListContains(_disallowedPlatforms, platform.TargetRid))
+        {
+            isAllowed = false;
+        }
+
+        return isAllowed;
     }
 
     private Conditioned<JobBase> CreateTemplate(Platform platform)
@@ -130,7 +168,7 @@ public partial class PlatformMatrix : JobTemplateDefinition
 
         if (platform.AdditionalJobParams != null)
         {
-            foreach (var pair in platform.AdditionalJobParams)
+            foreach (KeyValuePair<string, object> pair in platform.AdditionalJobParams)
             {
                 jobParameters[pair.Key] = pair.Value;
             }
@@ -142,9 +180,12 @@ public partial class PlatformMatrix : JobTemplateDefinition
 
         if (platform.RunForPlatforms != null)
         {
-            var quoted = platform.RunForPlatforms.Select(x => $"'{x}'").ToArray();
-            return If.Or(ContainsValue($"'{platform.Name}'", "parameters.platforms"), In("parameters.platformGroup", quoted))
-                    .JobTemplate("xplat-setup.yml", templateParameters);
+            string[]? quoted = platform.RunForPlatforms.Select(x => $"'{x}'").ToArray();
+            return If
+                    .Or(
+                        ContainsValue($"'{platform.Name}'", "parameters.platforms"),
+                        In("parameters.platformGroup", quoted))
+                   .JobTemplate("xplat-setup.yml", templateParameters);
         }
 
         return If.ContainsValue($"'{platform.Name}'", "parameters.platforms")
