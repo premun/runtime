@@ -19,8 +19,8 @@ public partial class PlatformMatrix : JobTemplateDefinition
     // Example "Run all linux non-arm legs":
     //   - allowed  = [ "linux" ]
     //   - disallowed = [ "arm" ]
-    private readonly List<string> _allowedPlatforms = new() { "linux" };
-    private readonly List<string> _disallowedPlatforms = new() { "arm" };
+    private readonly List<string> _allowedPlatforms = new() { };
+    private readonly List<string> _disallowedPlatforms = new() { };
 
     private List<Platform> Platforms => new()
     {

@@ -14,8 +14,7 @@ public partial class PlatformMatrix : JobTemplateDefinition
     public override string[]? Header => base.Header!.Concat(new[]
     {
         string.Empty,
-        "You can also change PlatformMatrix.cs to filter which platforms you care about in your PR",
-        "You can then filter these out temporarily",
+        "You can add platform filters to PlatformMatrix.cs and only keep platforms you care about in your PR",
     }).ToArray();
 
     public override TargetPathType TargetPathType => TargetPathType.RelativeToGitRoot;
@@ -74,15 +73,15 @@ public partial class PlatformMatrix : JobTemplateDefinition
 
     private bool IsAllowed(Platform platform)
     {
-        static bool ListContains(IEnumerable<string> strings, string? substring)
+        static bool ListContains(IEnumerable<string> substrings, string? haystack)
         {
-            if (substring is null)
+            if (haystack is null)
             {
                 return false;
             }
 
-            substring = substring.ToLowerInvariant();
-            return strings.Any(s => s.ToLowerInvariant().Contains(substring));
+            haystack = haystack.ToLower();
+            return substrings.Any(substring => haystack.Contains(substring.ToLower()));
         }
 
         bool isAllowed = true;
