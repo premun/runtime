@@ -9,17 +9,12 @@ using Sharpliner.AzureDevOps.ConditionedExpressions;
 
 namespace Pipelines;
 
-public partial class PlatformMatrix : JobTemplateDefinition
+public abstract class PlatformMatrixBase : JobTemplateDefinition
 {
-    public override string[]? Header => base.Header!.Concat(new[]
-    {
-        string.Empty,
-        "You can add platform filters to PlatformMatrix.cs and only keep platforms you care about in your PR",
-    }).ToArray();
-
-    public override TargetPathType TargetPathType => TargetPathType.RelativeToGitRoot;
-
-    public override string TargetFile => Configuration.PipelinesPath + "common/platform-matrix.yml";
+    // Fill these three in an ancestor to generate a list of classes
+    protected abstract List<string> AllowedPlatforms { get; }
+    protected abstract List<string> DisallowedPlatforms { get; }
+    protected abstract List<Platform> Platforms { get; }
 
     public override List<TemplateParameter> Parameters => new()
     {
@@ -86,15 +81,15 @@ public partial class PlatformMatrix : JobTemplateDefinition
 
         bool isAllowed = true;
 
-        if (_allowedPlatforms.Count > 0
-            && !ListContains(_allowedPlatforms, platform.Name)
-            && !ListContains(_allowedPlatforms, platform.TargetRid))
+        if (AllowedPlatforms.Count > 0
+            && !ListContains(AllowedPlatforms, platform.Name)
+            && !ListContains(AllowedPlatforms, platform.TargetRid))
         {
             isAllowed = false;
         }
 
-        if (ListContains(_disallowedPlatforms, platform.Name)
-            || ListContains(_disallowedPlatforms, platform.TargetRid))
+        if (ListContains(DisallowedPlatforms, platform.Name)
+            || ListContains(DisallowedPlatforms, platform.TargetRid))
         {
             isAllowed = false;
         }

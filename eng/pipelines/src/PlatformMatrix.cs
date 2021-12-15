@@ -2,11 +2,28 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Generic;
+using Sharpliner;
+using System.Linq;
 using Sharpliner.AzureDevOps;
 
 namespace Pipelines;
 
-public partial class PlatformMatrix : JobTemplateDefinition
+public record Platform(
+    string Name,
+    string OsGroup,
+    string Architecture,
+    string? TargetRid = null,
+    string? PlatformId = null,
+    string? OsSubGroup = null,
+    string? HostedOs = null,
+    object? Container = null,
+    string? RuntimeFlavor = null,
+    bool CrossBuild = false,
+    string? CrossRootFsDir = null,
+    IEnumerable<string>? RunForPlatforms = null,
+    TemplateParameters? AdditionalJobParams = null);
+
+public class PlatformMatrix : PlatformMatrixBase
 {
     // These fields can be used to restrict which build legs run in your PR.
     //
@@ -19,10 +36,20 @@ public partial class PlatformMatrix : JobTemplateDefinition
     // Example "Run all linux non-arm legs":
     //   - allowed  = [ "linux" ]
     //   - disallowed = [ "arm" ]
-    private readonly List<string> _allowedPlatforms = new() { };
-    private readonly List<string> _disallowedPlatforms = new() { };
+    protected override List<string> AllowedPlatforms { get; } = new() { };
+    protected override List<string> DisallowedPlatforms { get; } = new() { };
 
-    private List<Platform> Platforms => new()
+    public override string[]? Header => base.Header!.Concat(new[]
+    {
+        string.Empty,
+        "You can add platform filters to PlatformMatrix.cs and only keep platforms you care about in your PR",
+    }).ToArray();
+
+    public override TargetPathType TargetPathType => TargetPathType.RelativeToGitRoot;
+
+    public override string TargetFile => "eng/pipelines/common/platform-matrix.yml";
+
+    protected override List<Platform> Platforms => new()
     {
         new("Linux_arm", "Linux", "arm",
             Container: "ubuntu-16.04-cross-20210719121212-8a8d3be",
