@@ -20,7 +20,7 @@ namespace System
     public class NullReferenceException : SystemException
     {
         public NullReferenceException()
-            : base(SR.Arg_NullReferenceException)
+            : base("🔥🔥🔥 " + SR.Arg_NullReferenceException)
         {
             HResult = HResults.E_POINTER;
         }
